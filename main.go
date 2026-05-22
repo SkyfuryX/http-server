@@ -25,9 +25,11 @@ func main() {
 	}
 	handler := http.FileServer(http.Dir("."))
 	mux.Handle("/app/", http.StripPrefix("/app", apiCfg.middlewareMetrics(handler)))
-	mux.HandleFunc("GET /healthz", handlerReady)
-	mux.HandleFunc("GET /metrics", apiCfg.handlerHits)
-	mux.HandleFunc("POST /reset", apiCfg.handlerReset)
+	mux.HandleFunc("GET /api/healthz", handlerReady)
+	mux.HandleFunc("POST /api/validate_chirp", handlerValidate)
+	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerHits)
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+	
 
 	err := server.ListenAndServe()
 	if err != nil {
