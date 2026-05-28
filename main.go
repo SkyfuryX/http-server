@@ -16,15 +16,16 @@ import (
 
 type apiConfig struct {
 	fileserverHits atomic.Int32
-	dbQueries *database.Queries
-	platform string
+	dbQueries      *database.Queries
+	platform       string
 }
 
 type User struct {
-	ID       uuid.UUID `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
+	Password  string    `json:"password"`
 }
 
 func (cfg *apiConfig) middlewareMetrics(next http.Handler) http.Handler {
@@ -45,7 +46,7 @@ func main() {
 
 	apiCfg := apiConfig{
 		dbQueries: database.New(db),
-		platform: os.Getenv("PLATFORM"),
+		platform:  os.Getenv("PLATFORM"),
 	}
 	mux := http.NewServeMux()
 	server := http.Server{
@@ -59,9 +60,9 @@ func main() {
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerGetChirps)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerGetChirp)
 	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUser)
+	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerHits)
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
-	
 
 	err = server.ListenAndServe()
 	if err != nil {
